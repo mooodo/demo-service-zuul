@@ -7,9 +7,6 @@ spring:
     config:
       uri: ${GIT_URL:http://localhost:9000/}
       failFast: false
-      # discovery:
-      #   enabled: true
-      #   serviceId: service-config
       inetutils:
         ignoredInterfaces:
           - docker0
@@ -20,6 +17,17 @@ spring:
           springCloudBusOutput:
             destination: springCloudBusInput
             contentType: application/json
+
+---
+spring:
+  profiles: dev
+server:
+  port: 9008
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:9001/eureka/
 
 zuul:
   ribbonIsolationStrategy: THREAD # default: SEMAPHORE
@@ -39,6 +47,11 @@ zuul:
       serviceId: service-supplier
       stripPrefix: true
 
+    order:
+      path: /order/**
+      serviceId: service-order
+      stripPrefix: true
+
 hystrix:
   command:
     users:
@@ -56,19 +69,6 @@ management:
     web:
       exposure: 
         include: 'hystrix.stream'
-
----
-spring:
-  profiles: dev
-server:
-  port: 9008
-
-eureka:
-  client:
-    # registry-fetch-interval-seconds: 4
-    serviceUrl:
-      defaultZone: http://localhost:9001/eureka/
-
 
 logging:
   level:
