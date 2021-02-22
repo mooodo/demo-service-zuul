@@ -18,11 +18,11 @@ spec:
     spec:
       containers:
       - name: demo-service-zuul
-        image: 172.31.87.111:5000/demo-service-zuul
+        image: repository:5000/demo-service-zuul
         imagePullPolicy: Always
         env:
           - name: GIT_URL
-            value: "http://172.31.87.111:31000"
+            value: "http://demo-service-config:9000"
 
 ---
 kind: Service
