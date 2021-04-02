@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: service-zuul
+  profiles:
+      active: dev
+  cloud:
+    config:
+      uri: ${GIT_URL:http://localhost:9000/}
+      failFast: false
+      inetutils:
+        ignoredInterfaces:
+          - docker0
+          - veth.*
+          - eth(1|2).*
+      stream:
+        bindings:
+          springCloudBusOutput:
+            destination: springCloudBusInput
+            contentType: application/json
+
+---
+spring:
+  profiles: dev
+server:
+  port: 9008
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:9001/eureka/
+
+zuul:
+  ignoredServices: '*'
+  host:
+    maxTotalConnections: 200 #总连接数
+    maxPerRouteConnections: 20 #每个路由连接数
+    connect-timeout-millis: 5000 #当routes走url时生效
+    socket-timeout-millis: 10000 #当routes走url时生效
+  retryable: true
+  routes:
+    customer:
+      path: /customer/**
+      serviceId: service-customer
+      stripPrefix: true
+    product:
+      path: /product/**
+      serviceId: service-product
+      stripPrefix: true
+    supplier:
+      path: /supplier/**
+      serviceId: service-supplier
+      stripPrefix: true
+    order:
+      path: /order/**
+      serviceId: service-order
+      stripPrefix: true
+    analysis:
+      path: /analysis/**
+      serviceId: service-analysis
+      stripPrefix: true
+ribbon:
+  connectTimeout: 5000 # 请求连接的超时时间
+  readTimeout: 10000 # 请求处理的超时时间
+  maxAutoRetries: 1 # 对当前实例的重试次数
+  maxAutoRetriesNextServer: 3# 切换实例的重试次数
+  okToRetryOnAllOperations: true# 对所有操作请求都进行重试
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+management:
+  endpoints:
+    web:
+      exposure: 
+        include: 'hystrix.stream'
+
+logging:
+  level:
+    com.netflix.loadbalancer: INFO
+    com.netflix.discovery: INFO
+    org.springframework.security: INFO
+    com.demo.zuul: DEBUG
+
+---
+
+spring:
+  profiles: docker
+
+server:
+  port : ${SERVICE_PORT:9008}
+
+eureka:
+  instance:
+    prefer-ip-address: true 
+  client:
+    service-url:
+      defaultZone: ${REGISTRY_URL}
+ribbon:
+  MaxAutoRetries: 0 # default 0
+  MaxAutoRetriesNextServer: 2 # default 1
+  OkToRetryOnAllOperations: true # default false
