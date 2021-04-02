@@ -1,0 +1,42 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: demo-service-zuul
+  name: demo-service-zuul 
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-service-zuul
+  template:
+    metadata:
+      name: demo-service-zuul
+      labels:
+        app: demo-service-zuul
+    spec:
+      containers:
+      - name: demo-service-zuul
+        image: repository:5000/demo-service-zuul
+        imagePullPolicy: Always
+        env:
+          - name: GIT_URL
+            value: "http://demo-service-config:9000"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: demo-service-zuul
+  name: demo-service-zuul
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+  - port: 9008 
+    targetPort: 9008
+    nodePort: 31008
+  selector:
+    app: demo-service-zuul
