@@ -16,6 +16,16 @@ spec:
       labels:
         app: demo-service-zuul
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - demo-service-zuul
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: demo-service-zuul
         image: repository:5000/demo-service-zuul
