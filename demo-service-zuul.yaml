@@ -28,7 +28,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: demo-service-zuul
-        image: repository:5000/demo-service-zuul
+        image: repository:5000/demo-service-zuul:<VERSION>
         imagePullPolicy: Always
         env:
           - name: GIT_URL
